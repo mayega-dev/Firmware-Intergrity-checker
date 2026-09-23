@@ -1,0 +1,16 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "crypto.c"
+        "integrity_checker.c"
+        "logger.c"
+        "rollback.c"
+        "serial_comm.c"
+    INCLUDE_DIRS
+        "."
+    REQUIRES
+        mbedtls
+        nvs_flash
+        driver
+        spi_flash
+)

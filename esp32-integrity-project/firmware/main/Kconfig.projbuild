@@ -1,0 +1,38 @@
+menu "Firmware Integrity Checker"
+
+    config ALERT_UART_PORT_NUM
+        int "UART port number for the dashboard alert channel"
+        default 1
+        range 0 2
+        help
+            Dedicated UART used to send "::ALERT:...::" packets to the
+            desktop dashboard app. Must NOT be the same port as the
+            ESP-IDF console (see CONFIG_ESP_CONSOLE_UART_NUM /
+            CONFIG_ESP_CONSOLE_USB_CDC / CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG),
+            or the two data streams will corrupt each other.
+            Single-UART targets (e.g. ESP32-C3 in some board variants) may
+            only expose UART0 and UART1 - check your board's datasheet.
+
+    config ALERT_UART_TX_GPIO
+        int "Alert UART TX GPIO"
+        default 17
+        help
+            Pick a GPIO that is free on your specific board/chip. GPIO 17/18
+            are safe defaults on most ESP32/ESP32-S2/ESP32-S3 devkits, but
+            are NOT valid on every module (some are reserved for flash/PSRAM
+            on -WROVER or octal-flash variants) and may not exist at all on
+            smaller pin-count chips like the ESP32-C3/C6/H2. Check your
+            target's pinout before flashing.
+
+    config ALERT_UART_RX_GPIO
+        int "Alert UART RX GPIO"
+        default 18
+        help
+            See ALERT_UART_TX_GPIO. Set to -1 if this device only ever
+            transmits alerts and never receives ::POLL::/::TAMPER:: commands.
+
+    config ALERT_UART_BAUD_RATE
+        int "Alert UART baud rate"
+        default 115200
+
+endmenu

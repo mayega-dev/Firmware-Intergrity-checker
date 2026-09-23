@@ -1,0 +1,8 @@
+# Target-agnostic defaults. Run `idf.py set-target <chip>` first - that
+# generates a fresh, chip-correct `sdkconfig`, then these defaults are
+# merged in on top. Do NOT commit a chip-locked `sdkconfig` (e.g. one
+# containing CONFIG_IDF_TARGET_ESP32S3=y) if the project is meant to build
+# for more than one board - it silently pins every future build to that
+# one chip regardless of `idf.py set-target`.
+CONFIG_MBEDTLS_HARDWARE_SHA=y
+CONFIG_PARTITION_TABLE_CUSTOM=n

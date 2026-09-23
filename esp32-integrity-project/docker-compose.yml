@@ -1,0 +1,168 @@
+services:
+  # Dashboard
+  dashboard:
+    build: ./dashboard
+    image: firmware-integrity-dashboard:latest
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./exports:/data/exports
+
+  # Same as `dashboard`, plus serial device passthrough for real hardware.
+  # Run explicitly:  PORT=/dev/ttyUSB0 docker compose run --rm dashboard-hw
+  dashboard-hw:
+    build: ./dashboard
+    image: firmware-integrity-dashboard:latest
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./exports:/data/exports
+    devices:
+      - ${PORT:-/dev/ttyUSB0}:${PORT:-/dev/ttyUSB0}
+
+  # Builds dashboard/dist/FirmwareIntegrityMonitor/ - a standalone Linux
+  # executable, no Python install needed to run it. See dashboard/PACKAGING.md.
+  dashboard-package-linux:
+    build:
+      context: ./dashboard
+      dockerfile: packaging/Dockerfile.build
+    image: firmware-integrity-dashboard-builder:latest
+    volumes:
+      - ./dashboard:/build
+      - ./dashboard/dist:/output/dist
+
+  # Firmware 
+  firmware-build-slim:
+    build:
+      context: ./firmware
+      dockerfile: docker/Dockerfile.slim
+    image: esp32-idf-slim:v5.3.1
+    working_dir: /project
+    volumes:
+      - ./firmware:/project
+      - idf-ccache:/root/.ccache
+    environment:
+      - IDF_CCACHE_ENABLE=1
+      - CCACHE_MAXSIZE=2G
+    tty: true
+    stdin_open: true
+    command: sh -c "idf.py set-target esp32 && idf.py build"
+
+  firmware-build:
+    image: espressif/idf:v5.3.1
+    working_dir: /project
+    volumes:
+      - ./firmware:/project
+      - idf-ccache:/root/.ccache
+    environment:
+      - IDF_CCACHE_ENABLE=1
+      - CCACHE_MAXSIZE=2G
+    tty: true
+    stdin_open: true
+    # set-target is idempotent - safe to re-run every time.
+    command: sh -c "idf.py set-target esp32 && idf.py build"
+
+  firmware-flash:
+    image: espressif/idf:v5.3.1
+    working_dir: /project
+    volumes:
+      - ./firmware:/project
+      - idf-ccache:/root/.ccache
+    devices:
+      - ${PORT:-/dev/ttyUSB0}:${PORT:-/dev/ttyUSB0}
+    tty: true
+    stdin_open: true
+    command: sh -c "idf.py -p ${PORT:-/dev/ttyUSB0} flash"
+
+  # Same as firmware-flash, using the slim ESP32-only image instead of pulling the official multi-chip one just to flash.
+  firmware-flash-slim:
+    build:
+      context: ./firmware
+      dockerfile: docker/Dockerfile.slim
+    image: esp32-idf-slim:v5.3.1
+    working_dir: /project
+    volumes:
+      - ./firmware:/project
+      - idf-ccache:/root/.ccache
+    devices:
+      - ${PORT:-/dev/ttyUSB0}:${PORT:-/dev/ttyUSB0}
+    tty: true
+    stdin_open: true
+    command: sh -c "idf.py -p ${PORT:-/dev/ttyUSB0} flash"
+
+  firmware-monitor:
+    image: espressif/idf:v5.3.1
+    working_dir: /project
+    volumes:
+      - ./firmware:/project
+    devices:
+      - ${PORT:-/dev/ttyUSB0}:${PORT:-/dev/ttyUSB0}
+    tty: true
+    stdin_open: true
+    command: sh -c "idf.py -p ${PORT:-/dev/ttyUSB0} monitor"
+
+  firmware-monitor-slim:
+    build:
+      context: ./firmware
+      dockerfile: docker/Dockerfile.slim
+    image: esp32-idf-slim:v5.3.1
+    working_dir: /project
+    volumes:
+      - ./firmware:/project
+    devices:
+      - ${PORT:-/dev/ttyUSB0}:${PORT:-/dev/ttyUSB0}
+    tty: true
+    stdin_open: true
+    command: sh -c "idf.py -p ${PORT:-/dev/ttyUSB0} monitor"
+
+  firmware-menuconfig:
+    image: espressif/idf:v5.3.1
+    working_dir: /project
+    volumes:
+      - ./firmware:/project
+    tty: true
+    stdin_open: true
+    command: idf.py menuconfig
+
+  firmware-menuconfig-slim:
+    build:
+      context: ./firmware
+      dockerfile: docker/Dockerfile.slim
+    image: esp32-idf-slim:v5.3.1
+    working_dir: /project
+    volumes:
+      - ./firmware:/project
+    tty: true
+    stdin_open: true
+    command: idf.py menuconfig
+
+  # No device required - for anything not covered above (build-only debugging, inspecting generated files, etc.).
+  firmware-shell:
+    image: espressif/idf:v5.3.1
+    working_dir: /project
+    volumes:
+      - ./firmware:/project
+      - idf-ccache:/root/.ccache
+    tty: true
+    stdin_open: true
+    command: bash
+
+  firmware-shell-slim:
+    build:
+      context: ./firmware
+      dockerfile: docker/Dockerfile.slim
+    image: esp32-idf-slim:v5.3.1
+    working_dir: /project
+    volumes:
+      - ./firmware:/project
+      - idf-ccache:/root/.ccache
+    tty: true
+    stdin_open: true
+    command: bash
+
+volumes:
+  idf-ccache:
