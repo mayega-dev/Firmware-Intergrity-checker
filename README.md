@@ -42,36 +42,39 @@ This repository implements a lightweight 3-tier architecture:
 
 
 🚀 Quick Start Guide
-1. Requirements
+# 1. Requirements
 Workstation: Linux (Ubuntu 22.04 recommended), macOS, or Windows
 Python 3.12+ installed
 Docker Engine installed
 ESP32-S3 Development Board connected via USB-C
 
-2. Desktop Dashboard Setup
-   
-# Clone the repository
+# 2. Desktop Dashboard Setup
+## Clone the repository
 git clone [https://github.com/mayega-dev/Firmware-Intergrity-checker.git](https://github.com/mayega-dev/Firmware-Intergrity-checker.git)
+
 cd Firmware-Intergrity-checker/frontend
-# Create and activate a Python virtual environment
+## Create and activate a Python virtual environment
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-# Install dependencies
+## Install dependencies
 pip install -r requirements.txt
-# Launch the PySide6 Dashboard
+## Launch the PySide6 Dashboard
 python main.py
 
-3. Build & Flash Firmware (Docker Pipeline)
+# 3. Build & Flash Firmware (Docker Pipeline)
+
 cd ../docker
-# Build the firmware image inside the standardized Docker container
+## Build the firmware image inside the standardized Docker container
+
 docker-compose run --rm build-firmware
-# Flash binary to ESP32-S3 (Replace /dev/ttyUSB0 with your device port)
+
+## Flash binary to ESP32-S3 (Replace /dev/ttyUSB0 with your device port)
 esptool.py -p /dev/ttyUSB0 -b 921600 write_flash 0x10000 build/firmware-integrity-checker.bin
 
 
 
 
-👥 Authors & Academic Context
+# 👥 Authors & Academic Context
 This project was designed, implemented, and evaluated as part of a Bachelor’s degree requirement in Computer Security and Forensics at Uganda Technology and Management University (UTAMU).
 
 Mayega Rodney - mayega.rodney@student.utamu.ac.ug
