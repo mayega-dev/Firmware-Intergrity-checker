@@ -52,12 +52,16 @@ ESP32-S3 Development Board connected via USB-C
 ## Clone the repository
 git clone [https://github.com/mayega-dev/Firmware-Intergrity-checker.git](https://github.com/mayega-dev/Firmware-Intergrity-checker.git)
 
-cd Firmware-Intergrity-checker/frontend
+cd Firmware-Intergrity-checker/dashboard
 ## Create and activate a Python virtual environment
 python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate 
+
+# On Windows: venv\Scripts\activate
+
 ## Install dependencies
 pip install -r requirements.txt
+
 ## Launch the PySide6 Dashboard
 python main.py
 
