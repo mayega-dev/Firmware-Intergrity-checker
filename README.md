@@ -65,17 +65,7 @@ pip install -r requirements.txt
 ## Launch the PySide6 Dashboard
 python main.py
 
-# 3. Build & Flash Firmware (Docker Pipeline)
-
-cd ../docker
-## Build the firmware image inside the standardized Docker container
-
-docker-compose run --rm build-firmware
-
-## Flash binary to ESP32-S3 (Replace /dev/ttyUSB0 with your device port)
-esptool.py -p /dev/ttyUSB0 -b 921600 write_flash 0x10000 build/firmware-integrity-checker.bin
-
-
+## More in https://github.com/mayega-dev/Firmware-Intergrity-checker/blob/main/esp32-integrity-project/RUNNING_ON_ANY_OS.md 
 
 
 # 👥 Authors & Academic Context
